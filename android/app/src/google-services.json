@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1026758208223",
+    "project_id": "fluttertest-88aa6",
+    "storage_bucket": "fluttertest-88aa6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1026758208223:android:a2a1af5a4a65ef4491976a",
+        "android_client_info": {
+          "package_name": "com.example.flutter_work_test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAImmT75__oKirU8Qo1TOisIE7MydX01fU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1026758208223:android:6d1e8319d2f529d691976a",
+        "android_client_info": {
+          "package_name": "com.example.srv_test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAImmT75__oKirU8Qo1TOisIE7MydX01fU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
