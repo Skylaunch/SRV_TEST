@@ -1,13 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:srv_test/screens/auth_screen.dart';
-import 'package:srv_test/screens/favourites_screen.dart';
+import 'package:srv_test/data_providers/items_data_provider.dart';
+import 'package:srv_test/data_providers/users_data_provider.dart';
+import 'package:srv_test/routes.dart';
 
-final nameProvider = Provider<String>((ref) {
-  return 'Max';
+final usersDataProvider = Provider<UsersDataProvider>((ref) {
+  return UsersDataProvider();
+});
+
+final itemsDataProvider = Provider<ItemsDataProvider>((ref) {
+  return ItemsDataProvider();
 });
 
 void main() async {
@@ -22,23 +25,8 @@ void main() async {
     ),
   );
 
-  FirebaseDatabase database = FirebaseDatabase.instance;
-
   runApp(const ProviderScope(child: MyApp()));
 }
-
-final _router = GoRouter(
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const AuthScreen(title: 'SRV_TEST'),
-    ),
-    GoRoute(
-      path: 'favorites',
-      builder: (context, state) => const FavouritesScreen(),
-    )
-  ],
-);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -46,7 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: router,
     );
   }
 }
