@@ -1,6 +1,9 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:srv_test/models/user_model.dart';
 
 class UsersDataProvider {
+  static UserModel? currentUser;
+
   Future<void> registerIfNeeded(String login, String password) async {
     final users = FirebaseDatabase.instance.ref().child("Users");
     final event = await users.once();
@@ -8,6 +11,12 @@ class UsersDataProvider {
     for (final child in event.snapshot.children) {
       final user = (child.value as Map<Object?, Object?>);
       if (user['login'] == login && user['password'] == password) {
+        currentUser = UserModel(
+          login: login,
+          password: password,
+          favoritesIds: (user['favorite_items_list'] as String).split(','),
+          key: child.key,
+        );
         return;
       }
     }
@@ -19,10 +28,20 @@ class UsersDataProvider {
     Map<String, String> user = {
       'login': login,
       'password': password,
+      'favorite_items_list': '',
     };
 
     final users = FirebaseDatabase.instance.ref().child("Users");
 
-    users.push().set(user);
+    final newUserRef = users.push();
+
+    currentUser = UserModel(
+      login: login,
+      password: password,
+      favoritesIds: [''],
+      key: newUserRef.key,
+    );
+
+    newUserRef.set(user);
   }
 }

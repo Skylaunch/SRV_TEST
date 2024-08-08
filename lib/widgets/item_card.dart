@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srv_test/app_texts.dart';
+import 'package:srv_test/data_providers/users_data_provider.dart';
 import 'package:srv_test/main.dart';
 import 'package:srv_test/models/item_model.dart';
 
 class ItemCard extends StatefulWidget {
-  const ItemCard({super.key, required this.item});
+  const ItemCard({super.key, required this.item, this.onUnfavorite});
 
   final ItemModel item;
+  final VoidCallback? onUnfavorite;
 
   @override
   State<ItemCard> createState() => _ItemCardState();
@@ -18,7 +21,9 @@ class _ItemCardState extends State<ItemCard> {
   @override
   void initState() {
     super.initState();
-    isFavorite = widget.item.isFavorite;
+    isFavorite =
+        UsersDataProvider.currentUser?.isItemFavorite(widget.item.key!) ??
+            false;
   }
 
   @override
@@ -37,14 +42,18 @@ class _ItemCardState extends State<ItemCard> {
                     color: Colors.red,
                   ),
                   onTap: () {
-                    ref.read(itemsDataProvider).updateItem(
+                    ref.read(itemsDataProvider).updateUser(
                           widget.item,
                           !isFavorite,
                         );
 
-                    setState(() {
-                      isFavorite = !isFavorite;
-                    });
+                    if (widget.onUnfavorite != null) {
+                      widget.onUnfavorite!();
+                    } else {
+                      setState(() {
+                        isFavorite = !isFavorite;
+                      });
+                    }
                   },
                 );
               },
@@ -61,7 +70,7 @@ class _ItemCardState extends State<ItemCard> {
                   if (loadingProgress == null) {
                     return child;
                   }
-                  return const Center(child: Text('Loading...'));
+                  return const Center(child: Text(AppTexts.loading));
                 },
               ),
             ),

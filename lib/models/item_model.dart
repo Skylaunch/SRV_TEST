@@ -1,13 +1,13 @@
 class ItemModel {
+  final String? key;
   final String title;
   final String description;
   final String imagePath;
-  final bool isFavorite;
 
   ItemModel({
+    this.key,
     required this.title,
     required this.description,
     required this.imagePath,
-    required this.isFavorite,
   });
 }

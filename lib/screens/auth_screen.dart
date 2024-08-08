@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:srv_test/app_texts.dart';
 import 'package:srv_test/main.dart';
 import 'package:srv_test/routes.dart';
 
@@ -32,9 +33,7 @@ class _AuthScreenState extends State<AuthScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Введите свой логин:',
-            ),
+            const Text(AppTexts.inputLoginText),
             Form(
               key: _formKey,
               child: Column(
@@ -51,7 +50,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   _passwordController.text,
                                 );
 
-                            context.go(itemsScreenRoute);
+                            context.go(mainScreenRoute);
                           }
                         },
                       );
@@ -83,19 +82,22 @@ class __LoginFieldState extends State<_LoginField> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       child: TextFormField(
         controller: widget.controller,
-        validator: RequiredValidator(errorText: 'Введите логин').call,
+        validator:
+            RequiredValidator(errorText: AppTexts.emptyLoginFieldError).call,
         decoration: const InputDecoration(
-            hintText: 'Логин',
-            labelText: 'Логин',
-            prefixIcon: Icon(
-              Icons.login_outlined,
-              color: Colors.lightBlue,
-            ),
-            errorStyle: TextStyle(fontSize: 13.0),
-            errorMaxLines: 2,
-            border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.red),
-                borderRadius: BorderRadius.all(Radius.circular(9.0)))),
+          hintText: AppTexts.loginFieldHint,
+          labelText: AppTexts.loginFieldLabel,
+          prefixIcon: Icon(
+            Icons.login_outlined,
+            color: Colors.lightBlue,
+          ),
+          errorStyle: TextStyle(fontSize: 13.0),
+          errorMaxLines: 2,
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+            borderRadius: BorderRadius.all(Radius.circular(9.0)),
+          ),
+        ),
       ),
     );
   }
@@ -117,17 +119,19 @@ class _PasswordFieldState extends State<_PasswordField> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       child: TextFormField(
         controller: widget.controller,
-        validator: MultiValidator([
-          RequiredValidator(errorText: 'Пожалуйста ввведите пароль'),
-          MinLengthValidator(8,
-              errorText: 'Пароль не может содержать меньше 8 символов'),
-          PatternValidator(r'(?=.*?[#!@$%^&*-])',
-              errorText:
-                  'Пароль должен содержать минимум один символ из списка: (?=.*?[#!@\$%^&*-])')
-        ]).call,
+        validator: MultiValidator(
+          [
+            RequiredValidator(errorText: AppTexts.emptyPasswordFieldError),
+            MinLengthValidator(8, errorText: AppTexts.badPasswordLengthError),
+            PatternValidator(
+              AppTexts.passwordValidationRegex,
+              errorText: AppTexts.passwordFieldValidationError,
+            )
+          ],
+        ).call,
         decoration: const InputDecoration(
-          hintText: 'Пароль',
-          labelText: 'Пароль',
+          hintText: AppTexts.passwordFieldHint,
+          labelText: AppTexts.passwordFieldLabel,
           prefixIcon: Icon(
             Icons.key,
             color: Colors.green,
@@ -135,8 +139,9 @@ class _PasswordFieldState extends State<_PasswordField> {
           errorStyle: TextStyle(fontSize: 13.0),
           errorMaxLines: 2,
           border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red),
-              borderRadius: BorderRadius.all(Radius.circular(9.0))),
+            borderSide: BorderSide(color: Colors.red),
+            borderRadius: BorderRadius.all(Radius.circular(9.0)),
+          ),
         ),
       ),
     );
@@ -161,8 +166,8 @@ class _LoginButton extends StatelessWidget {
             backgroundColor: WidgetStateProperty.all(Colors.red),
           ),
           child: const Text(
-            'Login',
-            style: TextStyle(color: Colors.white, fontSize: 22),
+            AppTexts.loginButtonText,
+            style: TextStyle(color: Colors.white, fontSize: 16),
           ),
         ),
       ),

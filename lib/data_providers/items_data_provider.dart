@@ -1,12 +1,15 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:srv_test/data_providers/users_data_provider.dart';
 import 'package:srv_test/models/item_model.dart';
 
 class ItemsDataProvider {
-  Future<List<ItemModel>> getItems() async {
+  Future<List<ItemModel>> getItems(bool isFavoritesOnly) async {
     final unprocessedItems =
         await FirebaseDatabase.instance.ref().child("Items").once();
 
     List<ItemModel> resultItems = [];
+
+    final currentUser = UsersDataProvider.currentUser;
 
     for (var unprocessedItem in unprocessedItems.snapshot.children) {
       final itemAsJson = unprocessedItem.value as Map<Object?, Object?>;
@@ -14,47 +17,55 @@ class ItemsDataProvider {
       final title = itemAsJson['title'] as String;
       final description = itemAsJson['description'] as String;
       final imagePath = itemAsJson['imagePath'] as String;
-      final isFavorite = itemAsJson['isFavorive'] == 'true';
+      final key = itemAsJson['key'] as String;
 
-      resultItems.add(
-        ItemModel(
-          title: title,
-          description: description,
-          imagePath: imagePath,
-          isFavorite: isFavorite,
-        ),
-      );
+      if (!isFavoritesOnly ||
+          currentUser != null && currentUser.isItemFavorite(key)) {
+        resultItems.add(
+          ItemModel(
+            title: title,
+            description: description,
+            imagePath: imagePath,
+            key: unprocessedItem.key,
+          ),
+        );
+      }
     }
 
     return resultItems;
   }
 
-  Future<void> updateItem(ItemModel updatingItem, bool isFavoriteNew) async {
+  Future<void> updateUser(ItemModel currentItem, bool isFavoriteNew) async {
     final unprocessedItems =
         await FirebaseDatabase.instance.ref().child("Items").once();
 
     String? key;
     for (var unprocessedItem in unprocessedItems.snapshot.children) {
-      final itemAsJson = unprocessedItem.value as Map<Object?, Object?>;
+      final userAsJson = unprocessedItem.value as Map<Object?, Object?>;
 
-      if (itemAsJson['title'] == updatingItem.title &&
-          itemAsJson['description'] == updatingItem.description) {
+      if (userAsJson['title'] == currentItem.title &&
+          userAsJson['description'] == currentItem.description) {
         key = unprocessedItem.key;
       }
     }
 
-    if (key == null) {
+    final currentUser = UsersDataProvider.currentUser;
+
+    if (key == null || currentUser?.key == null) {
       return;
     }
 
+    List<String> newIds = currentUser!.favoritesIds;
+    isFavoriteNew ? newIds.add(key) : newIds.remove(key);
+
     final Map<String, String> updaitedFavoriteStatus = {
-      'isFavorive': isFavoriteNew.toString(),
+      'favorite_items_list': newIds.join(','),
     };
 
     FirebaseDatabase.instance
         .ref()
-        .child("Items")
-        .child(key)
+        .child("Users")
+        .child(currentUser.key!)
         .update(updaitedFavoriteStatus);
   }
 }

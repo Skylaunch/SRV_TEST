@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srv_test/app_texts.dart';
 import 'package:srv_test/main.dart';
 import 'package:srv_test/models/item_model.dart';
 import 'package:srv_test/widgets/item_card.dart';
@@ -11,10 +12,10 @@ class ItemsScreen extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('items_screen_title'),
+        title: const Text(AppTexts.itemsTitle),
       ),
       body: FutureBuilder<List<ItemModel>>(
-        future: ref.watch(itemsDataProvider).getItems(),
+        future: ref.watch(itemsDataProvider).getItems(false),
         builder: (context, snapshot) {
           return ListView.builder(
             shrinkWrap: true,
