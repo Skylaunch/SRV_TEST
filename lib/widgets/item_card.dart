@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srv_test/app_texts.dart';
-import 'package:srv_test/data_providers/users_data_provider.dart';
-import 'package:srv_test/main.dart';
 import 'package:srv_test/models/item_model.dart';
+import 'package:srv_test/models/user_model.dart';
+import 'package:srv_test/providers.dart';
 
 class ItemCard extends StatefulWidget {
-  const ItemCard({super.key, required this.item, this.onUnfavorite});
+  const ItemCard({
+    super.key,
+    required this.currentUser,
+    required this.item,
+    this.onUnfavoriteCustomTap,
+  });
 
+  final UserModel? currentUser;
   final ItemModel item;
-  final VoidCallback? onUnfavorite;
+  final VoidCallback? onUnfavoriteCustomTap;
 
   @override
   State<ItemCard> createState() => _ItemCardState();
@@ -21,9 +27,7 @@ class _ItemCardState extends State<ItemCard> {
   @override
   void initState() {
     super.initState();
-    isFavorite =
-        UsersDataProvider.currentUser?.isItemFavorite(widget.item.key!) ??
-            false;
+    isFavorite = widget.currentUser?.isItemFavorite(widget.item.key!) ?? false;
   }
 
   @override
@@ -45,10 +49,11 @@ class _ItemCardState extends State<ItemCard> {
                     ref.read(itemsDataProvider).updateUser(
                           widget.item,
                           !isFavorite,
+                          widget.currentUser,
                         );
 
-                    if (widget.onUnfavorite != null) {
-                      widget.onUnfavorite!();
+                    if (widget.onUnfavoriteCustomTap != null) {
+                      widget.onUnfavoriteCustomTap!();
                     } else {
                       setState(() {
                         isFavorite = !isFavorite;

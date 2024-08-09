@@ -1,15 +1,16 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:srv_test/data_providers/users_data_provider.dart';
 import 'package:srv_test/models/item_model.dart';
+import 'package:srv_test/models/user_model.dart';
 
 class ItemsDataProvider {
-  Future<List<ItemModel>> getItems(bool isFavoritesOnly) async {
+  Future<List<ItemModel>> getItems(
+    bool isFavoritesOnly,
+    UserModel? currentUser,
+  ) async {
     final unprocessedItems =
         await FirebaseDatabase.instance.ref().child("Items").once();
 
     List<ItemModel> resultItems = [];
-
-    final currentUser = UsersDataProvider.currentUser;
 
     for (var unprocessedItem in unprocessedItems.snapshot.children) {
       final itemAsJson = unprocessedItem.value as Map<Object?, Object?>;
@@ -35,7 +36,11 @@ class ItemsDataProvider {
     return resultItems;
   }
 
-  Future<void> updateUser(ItemModel currentItem, bool isFavoriteNew) async {
+  Future<void> updateUser(
+    ItemModel currentItem,
+    bool isFavoriteNew,
+    UserModel? currentUser,
+  ) async {
     final unprocessedItems =
         await FirebaseDatabase.instance.ref().child("Items").once();
 
@@ -48,8 +53,6 @@ class ItemsDataProvider {
         key = unprocessedItem.key;
       }
     }
-
-    final currentUser = UsersDataProvider.currentUser;
 
     if (key == null || currentUser?.key == null) {
       return;

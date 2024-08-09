@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:srv_test/app_texts.dart';
-import 'package:srv_test/data_providers/users_data_provider.dart';
+import 'package:srv_test/models/user_model.dart';
 import 'package:srv_test/routes.dart';
 
 class UserProfileScreen extends StatelessWidget {
-  const UserProfileScreen({super.key});
+  const UserProfileScreen({super.key, required this.currentUser});
+
+  final UserModel? currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +22,7 @@ class UserProfileScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 28),
               child: Text(
-                UsersDataProvider.currentUser?.login ??
-                    AppTexts.emptyLoginedUsername,
+                currentUser?.login ?? AppTexts.emptyLoginedUsername,
                 style: const TextStyle(
                   fontSize: 24,
                 ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:srv_test/app_texts.dart';
-import 'package:srv_test/main.dart';
+import 'package:srv_test/providers.dart';
 import 'package:srv_test/routes.dart';
 
 class AuthScreen extends StatefulWidget {

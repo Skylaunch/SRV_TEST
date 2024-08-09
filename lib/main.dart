@@ -1,17 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:srv_test/data_providers/items_data_provider.dart';
-import 'package:srv_test/data_providers/users_data_provider.dart';
+import 'package:srv_test/providers.dart';
 import 'package:srv_test/routes.dart';
-
-final usersDataProvider = Provider<UsersDataProvider>((ref) {
-  return UsersDataProvider();
-});
-
-final itemsDataProvider = Provider<ItemsDataProvider>((ref) {
-  return ItemsDataProvider();
-});
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,13 +19,14 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     return MaterialApp.router(
-      routerConfig: router,
+      routerConfig:
+          AppRouter(usersDataProvider: ref.read(usersDataProvider)).getRouter(),
     );
   }
 }
