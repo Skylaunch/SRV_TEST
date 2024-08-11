@@ -8,14 +8,36 @@ final usersDataProvider = Provider<UsersDataProvider>((ref) {
 });
 
 final itemsDataProvider = Provider<ItemsDataProvider>((ref) {
-  return ItemsDataProvider();
+  return ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider));
 });
 
-final fetchItemsProvider =
-    FutureProvider.autoDispose.family<List<ItemModel>, bool>((
-  ref,
-  isFavoritesOnly,
-) {
-  final currentUser = ref.read(usersDataProvider).getCurrentUser();
-  return ref.watch(itemsDataProvider).getItems(isFavoritesOnly, currentUser);
+final itemsProvider =
+    StateNotifierProvider<ItemsNotifier, List<ItemModel>>((ref) {
+  return ItemsNotifier();
+});
+
+class ItemsNotifier extends StateNotifier<List<ItemModel>> {
+  ItemsNotifier() : super([]);
+  Future<List<ItemModel>> getItems(WidgetRef ref, bool isFavoritesOnly) async {
+    return ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider))
+        .getItems(isFavoritesOnly);
+  }
+
+  updateFavoriteStatus(ItemModel changingItem) {
+    List<ItemModel> resultState = [];
+
+    for (var item in state) {
+      if (changingItem != item) {
+        resultState.add(item);
+      } else {
+        resultState.add(item.copyWith());
+      }
+    }
+
+    state = resultState;
+  }
+}
+
+final currentUserProvider = Provider.autoDispose((ref) {
+  return ref.watch(usersDataProvider).getCurrentUser();
 });

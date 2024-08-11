@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:srv_test/app_texts.dart';
 import 'package:srv_test/models/user_model.dart';
+import 'package:srv_test/providers.dart';
 import 'package:srv_test/routes.dart';
 
-class UserProfileScreen extends StatelessWidget {
-  const UserProfileScreen({super.key, required this.currentUser});
-
-  final UserModel? currentUser;
+class UserProfileScreen extends ConsumerWidget {
+  const UserProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = _getCurrentUser(ref);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppTexts.userProfileTitle),
@@ -30,11 +32,15 @@ class UserProfileScreen extends StatelessWidget {
             ),
             ElevatedButton(
               child: const Text(AppTexts.logout),
-              onPressed: () => context.go(authScreenRoute),
+              onPressed: () => context.push(authScreenRoute),
             ),
           ],
         ),
       ),
     );
+  }
+
+  UserModel? _getCurrentUser(WidgetRef ref) {
+    return ref.watch(usersDataProvider).getCurrentUser();
   }
 }

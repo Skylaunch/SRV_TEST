@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:srv_test/providers.dart';
 import 'package:srv_test/routes.dart';
 
 void main() async {
@@ -25,8 +24,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     return MaterialApp.router(
-      routerConfig:
-          AppRouter(usersDataProvider: ref.read(usersDataProvider)).getRouter(),
+      routerConfig: AppRouter.router,
     );
   }
 }

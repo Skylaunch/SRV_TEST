@@ -5,24 +5,24 @@ import 'package:srv_test/models/item_model.dart';
 import 'package:srv_test/models/user_model.dart';
 import 'package:srv_test/providers.dart';
 
-class ItemCard extends StatefulWidget {
+class ItemCard extends ConsumerStatefulWidget {
   const ItemCard({
     super.key,
-    required this.currentUser,
     required this.item,
     this.onUnfavoriteCustomTap,
+    required this.currentUser,
   });
 
-  final UserModel? currentUser;
   final ItemModel item;
   final VoidCallback? onUnfavoriteCustomTap;
+  final UserModel? currentUser;
 
   @override
-  State<ItemCard> createState() => _ItemCardState();
+  ConsumerState<ItemCard> createState() => _ItemCardState();
 }
 
-class _ItemCardState extends State<ItemCard> {
-  bool isFavorite = false;
+class _ItemCardState extends ConsumerState<ItemCard> {
+  late final bool isFavorite;
 
   @override
   void initState() {
@@ -38,29 +38,15 @@ class _ItemCardState extends State<ItemCard> {
         children: [
           ListTile(
             title: Text(widget.item.title),
-            trailing: Consumer(
-              builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                return InkWell(
-                  child: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_outline,
-                    color: Colors.red,
-                  ),
-                  onTap: () {
-                    ref.read(itemsDataProvider).updateUser(
-                          widget.item,
-                          !isFavorite,
-                          widget.currentUser,
-                        );
+            trailing: InkWell(
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_outline,
+                color: Colors.red,
+              ),
+              onTap: () {
+                _updateUser(ref);
 
-                    if (widget.onUnfavoriteCustomTap != null) {
-                      widget.onUnfavoriteCustomTap!();
-                    } else {
-                      setState(() {
-                        isFavorite = !isFavorite;
-                      });
-                    }
-                  },
-                );
+                _updateFavoriteStatus(ref);
               },
             ),
           ),
@@ -88,5 +74,15 @@ class _ItemCardState extends State<ItemCard> {
         ],
       ),
     );
+  }
+
+  Future<void> _updateUser(WidgetRef ref) {
+    return ref.read(itemsDataProvider).updateUser(
+          widget.item,
+        );
+  }
+
+  void _updateFavoriteStatus(WidgetRef ref) {
+    ref.watch(itemsProvider.notifier).updateFavoriteStatus(widget.item);
   }
 }

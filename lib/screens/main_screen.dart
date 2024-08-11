@@ -1,68 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:srv_test/app_texts.dart';
-import 'package:srv_test/routes.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class MainScreen extends StatelessWidget {
+  final StatefulNavigationShell child;
 
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
+  const MainScreen({super.key, required this.child});
 
-class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        bottomNavigationBar: const TabBar(
-          tabs: [
-            Tab(
-              icon: Icon(Icons.favorite),
-              text: AppTexts.favoritesTitle,
-            ),
-            Tab(
-              icon: Icon(Icons.local_grocery_store),
-              text: AppTexts.itemsTitle,
-            ),
-            Tab(
-              icon: Icon(Icons.person),
-              text: AppTexts.userProfileTitle,
-            ),
-          ],
-        ),
-        body: TabBarView(
-          children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: ElevatedButton(
-                  onPressed: () => context.push(favoritesScreenRoute),
-                  child: const Text(AppTexts.favoritesTitle),
-                ),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: ElevatedButton(
-                  onPressed: () => context.push(itemsScreenRoute),
-                  child: const Text(AppTexts.itemsTitle),
-                ),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: ElevatedButton(
-                  onPressed: () => context.push(userProfileScreenRoute),
-                  child: const Text(AppTexts.userProfileTitle),
-                ),
-              ),
-            ),
-          ],
-        ),
+    return Scaffold(
+      body: child,
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (currentTabNumber) => child.goBranch(currentTabNumber),
+        backgroundColor: const Color(0xffe0b9f6),
+        currentIndex: child.currentIndex,
+        items: const [
+          BottomNavigationBarItem(
+            activeIcon: Icon(Icons.favorite, color: Colors.red),
+            icon: Icon(Icons.favorite),
+            label: AppTexts.favoritesTitle,
+          ),
+          BottomNavigationBarItem(
+            activeIcon: Icon(Icons.local_grocery_store, color: Colors.red),
+            icon: Icon(Icons.local_grocery_store),
+            label: AppTexts.itemsTitle,
+          ),
+          BottomNavigationBarItem(
+            activeIcon: Icon(Icons.person, color: Colors.red),
+            icon: Icon(Icons.person),
+            label: AppTexts.userProfileTitle,
+          ),
+        ],
       ),
     );
   }

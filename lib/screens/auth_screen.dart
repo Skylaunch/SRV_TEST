@@ -45,12 +45,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       return _LoginButton(
                         onAuthButtonPress: () {
                           if (_formKey.currentState!.validate()) {
-                            ref.read(usersDataProvider).registerIfNeeded(
-                                  _loginController.text,
-                                  _passwordController.text,
-                                );
+                            _registerIfNeeded(ref);
 
-                            context.go(mainScreenRoute);
+                            context.push(itemsScreenRoute);
                           }
                         },
                       );
@@ -63,6 +60,13 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _registerIfNeeded(WidgetRef ref) {
+    return ref.read(usersDataProvider).registerIfNeeded(
+          _loginController.text,
+          _passwordController.text,
+        );
   }
 }
 

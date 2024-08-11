@@ -1,16 +1,21 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:srv_test/data_providers/users_data_provider.dart';
 import 'package:srv_test/models/item_model.dart';
-import 'package:srv_test/models/user_model.dart';
 
 class ItemsDataProvider {
+  ItemsDataProvider({required this.usersDataProvider});
+
+  final UsersDataProvider usersDataProvider;
+
   Future<List<ItemModel>> getItems(
     bool isFavoritesOnly,
-    UserModel? currentUser,
   ) async {
     final unprocessedItems =
         await FirebaseDatabase.instance.ref().child("Items").once();
 
     List<ItemModel> resultItems = [];
+
+    final currentUser = usersDataProvider.getCurrentUser();
 
     for (var unprocessedItem in unprocessedItems.snapshot.children) {
       final itemAsJson = unprocessedItem.value as Map<Object?, Object?>;
@@ -38,11 +43,11 @@ class ItemsDataProvider {
 
   Future<void> updateUser(
     ItemModel currentItem,
-    bool isFavoriteNew,
-    UserModel? currentUser,
   ) async {
     final unprocessedItems =
         await FirebaseDatabase.instance.ref().child("Items").once();
+
+    final currentUser = usersDataProvider.getCurrentUser();
 
     String? key;
     for (var unprocessedItem in unprocessedItems.snapshot.children) {
@@ -59,7 +64,7 @@ class ItemsDataProvider {
     }
 
     List<String> newIds = currentUser!.favoritesIds;
-    isFavoriteNew ? newIds.add(key) : newIds.remove(key);
+    currentUser.isItemFavorite(key) ? newIds.remove(key) : newIds.add(key);
 
     final Map<String, String> updaitedFavoriteStatus = {
       'favorite_items_list': newIds.join(','),
@@ -70,5 +75,8 @@ class ItemsDataProvider {
         .child("Users")
         .child(currentUser.key!)
         .update(updaitedFavoriteStatus);
+
+    usersDataProvider
+        .setCurrentUser(currentUser.copyWith(favoritesIds: newIds));
   }
 }
