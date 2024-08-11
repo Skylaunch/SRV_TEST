@@ -18,9 +18,10 @@ final itemsProvider =
 
 class ItemsNotifier extends StateNotifier<List<ItemModel>> {
   ItemsNotifier() : super([]);
-  Future<List<ItemModel>> getItems(WidgetRef ref, bool isFavoritesOnly) async {
+
+  Future<List<ItemModel>> getItems(WidgetRef ref) async {
     return ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider))
-        .getItems(isFavoritesOnly);
+        .getItems(false);
   }
 
   updateFavoriteStatus(ItemModel changingItem) {
@@ -35,6 +36,48 @@ class ItemsNotifier extends StateNotifier<List<ItemModel>> {
     }
 
     state = resultState;
+  }
+}
+
+final favoritesProvider =
+    StateNotifierProvider<FavoritesNotifier, List<ItemModel>>((ref) {
+  return FavoritesNotifier();
+});
+
+class FavoritesNotifier extends StateNotifier<List<ItemModel>> {
+  FavoritesNotifier() : super([]);
+
+  Future<void> fetchData(WidgetRef ref) async {
+    state =
+        await ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider))
+            .getItems(true);
+  }
+
+  Future<List<ItemModel>> getFavorites(WidgetRef ref) async {
+    return ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider))
+        .getItems(true);
+  }
+
+  void updateFavorites(ItemModel changingItem) {
+    List<ItemModel> resultFavorites = [];
+
+    if (state.contains(changingItem)) {
+      for (ItemModel item in state) {
+        if (item != changingItem) {
+          resultFavorites.add(item);
+        }
+      }
+
+      state = resultFavorites;
+    } else {
+      for (ItemModel item in state) {
+        resultFavorites.add(item);
+      }
+
+      resultFavorites.add(changingItem);
+
+      state = resultFavorites;
+    }
   }
 }
 

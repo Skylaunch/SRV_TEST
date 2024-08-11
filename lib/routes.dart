@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:srv_test/app_texts.dart';
 import 'package:srv_test/screens/auth_screen.dart';
@@ -5,6 +6,7 @@ import 'package:srv_test/screens/favourites_screen.dart';
 import 'package:srv_test/screens/items_screen.dart';
 import 'package:srv_test/screens/main_screen.dart';
 import 'screens/user_profile_screen.dart';
+import 'package:collection/collection.dart';
 
 const String appTitle = AppTexts.appTitle;
 
@@ -22,10 +24,17 @@ class AppRouter {
           title: appTitle,
         ),
       ),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
+        navigatorContainerBuilder: (BuildContext context,
+            StatefulNavigationShell navigationShell, List<Widget> children) {
+          return ExtendedShellBranchContainer(
+            currentIndex: navigationShell.currentIndex,
+            children: children,
+          );
+        },
         builder: (context, state, child) => MainScreen(child: child),
-        branches: <StatefulShellBranch>[
-          StatefulShellBranch(
+        branches: <ExtendedShellBranch>[
+          ExtendedShellBranch(
             routes: <RouteBase>[
               GoRoute(
                 path: favoritesScreenRoute,
@@ -33,7 +42,8 @@ class AppRouter {
               ),
             ],
           ),
-          StatefulShellBranch(
+          ExtendedShellBranch(
+            saveState: false,
             routes: <RouteBase>[
               GoRoute(
                 path: itemsScreenRoute,
@@ -41,7 +51,7 @@ class AppRouter {
               ),
             ],
           ),
-          StatefulShellBranch(
+          ExtendedShellBranch(
             routes: <RouteBase>[
               GoRoute(
                 path: userProfileScreenRoute,
@@ -53,4 +63,69 @@ class AppRouter {
       ),
     ],
   );
+}
+
+class ExtendedShellBranch extends StatefulShellBranch {
+  ExtendedShellBranch({
+    this.saveState = true,
+    super.initialLocation,
+    super.navigatorKey,
+    super.observers,
+    super.restorationScopeId,
+    required super.routes,
+  });
+
+  final bool saveState;
+}
+
+class ExtendedShellBranchContainer extends StatelessWidget {
+  const ExtendedShellBranchContainer({
+    required this.currentIndex,
+    required this.children,
+    super.key,
+  });
+
+  final int currentIndex;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> stackItems = children
+        .mapIndexed((i, e) => _buildRouteBranchContainer(
+              context,
+              currentIndex == i,
+              e,
+            ))
+        .toList();
+
+    final child = children[currentIndex];
+    final branch = (child as dynamic).branch as ExtendedShellBranch;
+
+    return Stack(
+      children: [
+        IndexedStack(
+          index: currentIndex,
+          children: stackItems,
+        ),
+        if (!branch.saveState) children[currentIndex],
+      ],
+    );
+  }
+
+  Widget _buildRouteBranchContainer(
+    BuildContext context,
+    bool isActive,
+    Widget child,
+  ) {
+    final branch = (child as dynamic).branch as ExtendedShellBranch;
+    if (!branch.saveState) return const SizedBox.shrink();
+
+    return Offstage(
+      offstage: !isActive,
+      child: TickerMode(
+        enabled: isActive,
+        child: child,
+      ),
+    );
+  }
 }

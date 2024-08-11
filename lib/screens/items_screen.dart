@@ -10,7 +10,7 @@ class ItemsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    ref.watch(itemsProvider);
+    ref.read(favoritesProvider.notifier).fetchData(ref);
 
     return Scaffold(
       appBar: AppBar(
@@ -45,6 +45,6 @@ class ItemsScreen extends ConsumerWidget {
   }
 
   Future<List<ItemModel>> _getItems(WidgetRef ref) {
-    return ref.watch(itemsProvider.notifier).getItems(ref, false);
+    return ref.watch(itemsProvider.notifier).getItems(ref);
   }
 }

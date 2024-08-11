@@ -15,7 +15,7 @@ class FavouritesScreen extends ConsumerStatefulWidget {
 class _FavouritesScreenState extends ConsumerState<FavouritesScreen> {
   @override
   Widget build(BuildContext context) {
-    ref.watch(itemsProvider);
+    ref.watch(favoritesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,33 +23,50 @@ class _FavouritesScreenState extends ConsumerState<FavouritesScreen> {
       ),
       body: FutureBuilder(
         future: _getItems(ref),
-        builder: (context, data) => data.connectionState == ConnectionState.done
-            ? data.data!.isNotEmpty
-                ? ListView.builder(
-                    itemCount: data.data!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final item = data.data![index];
-
-                      return ListTile(
-                        title: ItemCard(
-                          item: item,
-                          currentUser: ref.watch(currentUserProvider),
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.done
+                ? snapshot.data!.isNotEmpty
+                    ? FavoritesListView(favorites: snapshot.data!, ref: ref)
+                    : const Center(
+                        child: Text(
+                          AppTexts.emptyFavoritesText,
+                          style: TextStyle(fontSize: 16),
                         ),
-                      );
-                    },
-                  )
-                : const Center(
-                    child: Text(
-                      AppTexts.emptyFavoritesText,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  )
-            : const Center(child: CircularProgressIndicator()),
+                      )
+                : const Center(child: CircularProgressIndicator()),
       ),
     );
   }
 
   Future<List<ItemModel>> _getItems(WidgetRef ref) {
-    return ref.watch(itemsProvider.notifier).getItems(ref, true);
+    return ref.watch(favoritesProvider.notifier).getFavorites(ref);
+  }
+}
+
+class FavoritesListView extends StatelessWidget {
+  const FavoritesListView({
+    super.key,
+    required this.favorites,
+    required this.ref,
+  });
+
+  final List<ItemModel> favorites;
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: favorites.length,
+      itemBuilder: (BuildContext context, int index) {
+        final item = favorites[index];
+
+        return ListTile(
+          title: ItemCard(
+            item: item,
+            currentUser: ref.watch(currentUserProvider),
+          ),
+        );
+      },
+    );
   }
 }

@@ -22,7 +22,7 @@ class ItemCard extends ConsumerStatefulWidget {
 }
 
 class _ItemCardState extends ConsumerState<ItemCard> {
-  late final bool isFavorite;
+  bool isFavorite = false;
 
   @override
   void initState() {
@@ -47,6 +47,10 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                 _updateUser(ref);
 
                 _updateFavoriteStatus(ref);
+
+                setState(() {
+                  isFavorite = !isFavorite;
+                });
               },
             ),
           ),
@@ -83,6 +87,6 @@ class _ItemCardState extends ConsumerState<ItemCard> {
   }
 
   void _updateFavoriteStatus(WidgetRef ref) {
-    ref.watch(itemsProvider.notifier).updateFavoriteStatus(widget.item);
+    ref.watch(favoritesProvider.notifier).updateFavorites(widget.item);
   }
 }
