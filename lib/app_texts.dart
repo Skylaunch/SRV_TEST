@@ -18,6 +18,7 @@ class AppTexts {
   static const String loading = 'Загрузка...';
 
   // Errors
+  static const String defaultErrorText = 'Произошла ошибка';
   static const String emptyLoginFieldError = 'Введите логин';
   static const String emptyPasswordFieldError = 'Пожалуйста ввведите пароль';
   static const String emptyLoginedUsername = 'Ошибка в сохранении пользователя';

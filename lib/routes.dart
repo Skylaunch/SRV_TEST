@@ -35,6 +35,7 @@ class AppRouter {
         builder: (context, state, child) => MainScreen(child: child),
         branches: <ExtendedShellBranch>[
           ExtendedShellBranch(
+            saveState: false,
             routes: <RouteBase>[
               GoRoute(
                 path: favoritesScreenRoute,

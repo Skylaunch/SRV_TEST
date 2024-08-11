@@ -2,6 +2,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srv_test/data_providers/items_data_provider.dart';
 import 'package:srv_test/data_providers/users_data_provider.dart';
 import 'package:srv_test/models/item_model.dart';
+import 'package:srv_test/models/user_model.dart';
+
+// Load data async
+final fetchItemsProvider = FutureProvider((ref) {
+  return ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider))
+      .getItems(false);
+});
+
+final fetchFavoritesProvider = FutureProvider((ref) {
+  return ref.watch(favoritesProvider);
+});
+
+final currentUserProvider =
+    StateNotifierProvider<CurrentUserNotivier, UserModel?>((ref) {
+  return CurrentUserNotivier(ref.read(usersDataProvider).getCurrentUser());
+});
+
+// Work with user and items
+class CurrentUserNotivier extends StateNotifier<UserModel?> {
+  CurrentUserNotivier(super.state);
+
+  void setUser(WidgetRef ref) {
+    state = ref.watch(usersDataProvider).getCurrentUser();
+  }
+}
 
 final usersDataProvider = Provider<UsersDataProvider>((ref) {
   return UsersDataProvider();
@@ -11,34 +36,7 @@ final itemsDataProvider = Provider<ItemsDataProvider>((ref) {
   return ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider));
 });
 
-final itemsProvider =
-    StateNotifierProvider<ItemsNotifier, List<ItemModel>>((ref) {
-  return ItemsNotifier();
-});
-
-class ItemsNotifier extends StateNotifier<List<ItemModel>> {
-  ItemsNotifier() : super([]);
-
-  Future<List<ItemModel>> getItems(WidgetRef ref) async {
-    return ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider))
-        .getItems(false);
-  }
-
-  updateFavoriteStatus(ItemModel changingItem) {
-    List<ItemModel> resultState = [];
-
-    for (var item in state) {
-      if (changingItem != item) {
-        resultState.add(item);
-      } else {
-        resultState.add(item.copyWith());
-      }
-    }
-
-    state = resultState;
-  }
-}
-
+// Work with favorites
 final favoritesProvider =
     StateNotifierProvider<FavoritesNotifier, List<ItemModel>>((ref) {
   return FavoritesNotifier();
@@ -53,34 +51,9 @@ class FavoritesNotifier extends StateNotifier<List<ItemModel>> {
             .getItems(true);
   }
 
-  Future<List<ItemModel>> getFavorites(WidgetRef ref) async {
-    return ItemsDataProvider(usersDataProvider: ref.read(usersDataProvider))
-        .getItems(true);
-  }
-
   void updateFavorites(ItemModel changingItem) {
-    List<ItemModel> resultFavorites = [];
-
-    if (state.contains(changingItem)) {
-      for (ItemModel item in state) {
-        if (item != changingItem) {
-          resultFavorites.add(item);
-        }
-      }
-
-      state = resultFavorites;
-    } else {
-      for (ItemModel item in state) {
-        resultFavorites.add(item);
-      }
-
-      resultFavorites.add(changingItem);
-
-      state = resultFavorites;
-    }
+    state = state.contains(changingItem)
+        ? state.where((item) => item != changingItem).toList()
+        : (state..add(changingItem));
   }
 }
-
-final currentUserProvider = Provider.autoDispose((ref) {
-  return ref.watch(usersDataProvider).getCurrentUser();
-});

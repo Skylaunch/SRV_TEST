@@ -9,12 +9,10 @@ class ItemCard extends ConsumerStatefulWidget {
   const ItemCard({
     super.key,
     required this.item,
-    this.onUnfavoriteCustomTap,
     required this.currentUser,
   });
 
   final ItemModel item;
-  final VoidCallback? onUnfavoriteCustomTap;
   final UserModel? currentUser;
 
   @override
@@ -27,11 +25,12 @@ class _ItemCardState extends ConsumerState<ItemCard> {
   @override
   void initState() {
     super.initState();
-    isFavorite = widget.currentUser?.isItemFavorite(widget.item.key!) ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
+    isFavorite = widget.currentUser?.isItemFavorite(widget.item.key!) ?? false;
+
     return Card(
       elevation: 4.0,
       child: Column(
@@ -43,14 +42,12 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                 isFavorite ? Icons.favorite : Icons.favorite_outline,
                 color: Colors.red,
               ),
-              onTap: () {
-                _updateUser(ref);
+              onTap: () async {
+                await _updateUser(ref);
 
-                _updateFavoriteStatus(ref);
+                _updateFavorites(ref);
 
-                setState(() {
-                  isFavorite = !isFavorite;
-                });
+                ref.read(currentUserProvider.notifier).setUser(ref);
               },
             ),
           ),
@@ -80,13 +77,11 @@ class _ItemCardState extends ConsumerState<ItemCard> {
     );
   }
 
-  Future<void> _updateUser(WidgetRef ref) {
-    return ref.read(itemsDataProvider).updateUser(
-          widget.item,
-        );
+  Future<void> _updateUser(WidgetRef ref) async {
+    return ref.read(itemsDataProvider).updateUser(widget.item);
   }
 
-  void _updateFavoriteStatus(WidgetRef ref) {
+  void _updateFavorites(WidgetRef ref) {
     ref.watch(favoritesProvider.notifier).updateFavorites(widget.item);
   }
 }
